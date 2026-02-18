@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pkg-dynamic-field"
+version = "0.1.0"
+description = "Entity-agnostic dynamic field definitions, validation, and value storage"
+requires-python = ">=3.12"
+
+[project.optional-dependencies]
+sqlalchemy = ["sqlalchemy>=2.0"]
+fastapi = ["fastapi>=0.100", "pydantic>=2.0"]
+all = ["pkg-dynamic-field[sqlalchemy,fastapi]"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

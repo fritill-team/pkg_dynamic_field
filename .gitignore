@@ -1,0 +1,28 @@
+src/pkg_dynamic_field.egg-info
+.idea
+build/
+dist/
+*.swp
+package-lock.json
+.pytest_cache
+*.egg-info
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+dump.rdb
+# Environments
+.env
+.venv
+env/
+venv/*
+ENV/
+env.bak/
+venv.bak/
+
+.idea/
+.vscode/
+*/node_modules/
+.DS_Store
