@@ -181,6 +181,35 @@ def _validate_scalar(
         if pattern is not None and not re.search(pattern, value):
             errors.append(FieldError(path=path, message=f"Must match pattern: {pattern}", code="pattern"))
 
+    if defn.type == FieldType.DATE_RANGE:
+        range_type = constraints.get("range_type", "date")
+        parse_fn = date.fromisoformat if range_type == "date" else datetime.fromisoformat
+        label = range_type
+
+        start_raw, end_raw = value.get("start"), value.get("end")
+        start_parsed = end_parsed = None
+
+        if start_raw is not None:
+            if not isinstance(start_raw, str):
+                errors.append(FieldError(path=f"{path}.start", message=f"Expected ISO {label} string.", code="type"))
+            else:
+                try:
+                    start_parsed = parse_fn(start_raw)
+                except (ValueError, TypeError):
+                    errors.append(FieldError(path=f"{path}.start", message=f"Invalid {label} format.", code="type"))
+
+        if end_raw is not None:
+            if not isinstance(end_raw, str):
+                errors.append(FieldError(path=f"{path}.end", message=f"Expected ISO {label} string.", code="type"))
+            else:
+                try:
+                    end_parsed = parse_fn(end_raw)
+                except (ValueError, TypeError):
+                    errors.append(FieldError(path=f"{path}.end", message=f"Invalid {label} format.", code="type"))
+
+        if start_parsed is not None and end_parsed is not None and start_parsed > end_parsed:
+            errors.append(FieldError(path=path, message="'start' must be before or equal to 'end'.", code="range"))
+
     allowed_values = constraints.get("allowed_values")
     if allowed_values is not None and value not in allowed_values:
         errors.append(FieldError(path=path, message=f"Value must be one of: {allowed_values}", code="allowed_values"))
@@ -214,5 +243,11 @@ def _check_type(field_type: FieldType, value: Any, path: str) -> Optional[FieldE
                 datetime.fromisoformat(value)
         except (ValueError, TypeError):
             return FieldError(path=path, message=f"Invalid {field_type.value} format.", code="type")
+
+    if field_type == FieldType.DATE_RANGE:
+        if not isinstance(value, dict):
+            return FieldError(path=path, message="Expected an object with 'start' and 'end'.", code="type")
+        if "start" not in value or "end" not in value:
+            return FieldError(path=path, message="Both 'start' and 'end' are required.", code="type")
 
     return None

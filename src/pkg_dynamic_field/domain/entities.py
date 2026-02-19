@@ -15,6 +15,7 @@ class FieldType(str, enum.Enum):
     DATE = "date"
     DATETIME = "datetime"
     JSON = "json"
+    DATE_RANGE = "date_range"
     COMPOSITE = "composite"
 
 

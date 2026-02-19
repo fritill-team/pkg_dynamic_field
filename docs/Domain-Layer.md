@@ -17,8 +17,16 @@ class FieldType(str, Enum):
     DATE = "date"
     DATETIME = "datetime"
     JSON = "json"
+    DATE_RANGE = "date_range"
     COMPOSITE = "composite"
 ```
+
+#### DATE_RANGE
+
+Stores a date or datetime range as `{"start": "...", "end": "..."}` (ISO format strings).
+
+- Constraint `range_type`: `"date"` (default) or `"datetime"` — controls format validation.
+- Validates that both `start` and `end` are present and that `start <= end`.
 
 ### FieldDefinition
 

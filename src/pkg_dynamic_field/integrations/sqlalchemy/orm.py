@@ -21,7 +21,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ...domain.entities import FieldType
 
 
-def configure_orm(Base, entity_fk="articles.id", entity_column_name="entity_id"):
+def configure_orm(Base, entity_fk="articles.id", entity_column_name="entity_id", kind_column_type=None):
     """Create and return ORM model classes bound to the given Base and entity FK.
 
     Args:
@@ -29,6 +29,9 @@ def configure_orm(Base, entity_fk="articles.id", entity_column_name="entity_id")
         entity_fk: Foreign key target for FieldValue.entity_id (e.g. "articles.id").
         entity_column_name: DB column name for the entity FK (e.g. "article_id" for
             backwards compatibility with existing schemas).
+        kind_column_type: Optional SQLAlchemy column type for ``FieldSchema.kind``.
+            Defaults to ``String(255)``.  Pass a PostgreSQL ``ENUM`` type when the
+            DB column uses an existing enum (e.g. ``article_kind``).
 
     Returns:
         Tuple of (FieldSchemaModel, FieldDefinitionModel, FieldValueModel).
@@ -41,7 +44,7 @@ def configure_orm(Base, entity_fk="articles.id", entity_column_name="entity_id")
         __tablename__ = "field_schemas"
 
         id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-        kind: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+        kind: Mapped[str] = mapped_column(kind_column_type or String(255), nullable=False, unique=True)
         version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
         created_at: Mapped[datetime] = mapped_column(
             DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -69,7 +72,10 @@ def configure_orm(Base, entity_fk="articles.id", entity_column_name="entity_id")
             nullable=True,
         )
         key: Mapped[str] = mapped_column(String(255), nullable=False)
-        type: Mapped[FieldType] = mapped_column(SAEnum(FieldType, name="field_type"), nullable=False)
+        type: Mapped[FieldType] = mapped_column(
+            SAEnum(FieldType, name="field_type", values_callable=lambda e: [m.value for m in e]),
+            nullable=False,
+        )
         constraints: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
         ui_config: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
         translatable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
