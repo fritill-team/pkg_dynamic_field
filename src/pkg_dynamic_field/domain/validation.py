@@ -211,8 +211,14 @@ def _validate_scalar(
             errors.append(FieldError(path=path, message="'start' must be before or equal to 'end'.", code="range"))
 
     allowed_values = constraints.get("allowed_values")
-    if allowed_values is not None and value not in allowed_values:
-        errors.append(FieldError(path=path, message=f"Value must be one of: {allowed_values}", code="allowed_values"))
+    if allowed_values is not None:
+        # Support both plain values ["a", "b"] and object-style [{"value": "a", ...}]
+        check_values = [
+            av["value"] if isinstance(av, dict) and "value" in av else av
+            for av in allowed_values
+        ]
+        if value not in check_values:
+            errors.append(FieldError(path=path, message=f"Value must be one of: {check_values}", code="allowed_values"))
 
     return errors
 
