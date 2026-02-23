@@ -29,8 +29,6 @@ class SetFieldValues:
 
             errors = validate_field_values(schema, values)
             if errors:
-                for e in errors:
-                    print(f"  FIELD_VALIDATION_DEBUG: path={e.path} message={e.message} code={e.code}")
                 raise FieldValidationError(errors=errors)
 
             known_keys = {d.key for d in schema.top_level_definitions}

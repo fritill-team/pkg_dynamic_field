@@ -13,7 +13,7 @@ A `FieldDefinition` describes a single field within a schema:
 - **key**: unique identifier (e.g. `"location"`, `"ticket_price"`)
 - **type**: one of `string`, `int`, `float`, `bool`, `date`, `datetime`, `json`, `composite`
 - **constraints**: validation rules (`required`, `min`, `max`, `min_length`, `max_length`, `pattern`, `allowed_values`, `min_items`, `max_items`)
-- **translatable**: if `true`, value is `{"default": ..., "translations": {"ar": ..., "fr": ...}}`
+- **translatable**: if `true`, value is a dict of locale keys, e.g. `{"en": "Hello", "ar": "مرحبا"}`
 - **repeatable**: if `true`, value is a list
 - **composite**: contains child definitions, value is a nested object
 
@@ -93,6 +93,7 @@ field_values = await SetFieldValues(uow).execute(
 | `date` | `str` (ISO format) | — |
 | `datetime` | `str` (ISO format) | — |
 | `json` | any | — |
+| `date_range` | `dict` (`{"start": ..., "end": ...}`) | `range_type` (`"date"` or `"datetime"`) |
 | `composite` | `dict` | validated recursively via child definitions |
 
 All types support `required` constraint. Repeatable fields additionally support `min_items` and `max_items`.

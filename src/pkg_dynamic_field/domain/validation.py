@@ -87,20 +87,15 @@ def _validate_translatable(
         return errors
 
     if not isinstance(value, dict):
-        errors.append(FieldError(path=path, message="Expected a translatable object with 'default' key.", code="type"))
+        errors.append(FieldError(path=path, message="Expected a translatable object with locale keys.", code="type"))
         return errors
 
-    if "default" not in value:
-        errors.append(FieldError(path=f"{path}.default", message="Default value is required.", code="required"))
-    else:
-        non_translatable = replace(defn, translatable=False)
-        errors.extend(_validate_scalar_or_composite(non_translatable, value["default"], f"{path}.default"))
+    if required and not value:
+        errors.append(FieldError(path=path, message="At least one locale value is required.", code="required"))
 
-    translations = value.get("translations", {})
-    if isinstance(translations, dict):
-        non_translatable = replace(defn, translatable=False)
-        for lang, lang_value in translations.items():
-            errors.extend(_validate_scalar_or_composite(non_translatable, lang_value, f"{path}.translations.{lang}"))
+    non_translatable = replace(defn, translatable=False)
+    for locale, locale_value in value.items():
+        errors.extend(_validate_scalar_or_composite(non_translatable, locale_value, f"{path}.{locale}"))
 
     return errors
 
