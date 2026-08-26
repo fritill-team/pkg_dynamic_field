@@ -26,3 +26,5 @@ venv.bak/
 .vscode/
 */node_modules/
 .DS_Store
+# graphify build state — regenerable, never committed
+graphify-out/
